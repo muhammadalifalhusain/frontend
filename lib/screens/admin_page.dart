@@ -309,7 +309,7 @@ class _AdminPageState extends State<AdminPage> {
           ),
           ListTile(
             leading: const Icon(Icons.history, color: Color(0xFFD0C05B)),
-            title: const Text('History Belanja', style: TextStyle(color: Color(0xFFD0C05B))),
+            title: const Text('Kelola Pengguna', style: TextStyle(color: Color(0xFFD0C05B))),
             onTap: () {
               Navigator.pop(context);
               _navigateToHistoryPage();

@@ -82,9 +82,11 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             TextFormField(
               controller: emailController,
+              style: TextStyle(color: Color(0xFFD0C05B)), // Warna teks input
               decoration: InputDecoration(
                 labelText: 'Email',
                 labelStyle: TextStyle(color: Color(0xFFD0C05B)),
+                hintStyle: TextStyle(color: Color(0xFFB0B0B0)), // Warna placeholder
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFFD0C05B)),
                 ),
@@ -96,9 +98,11 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 10),
             TextFormField(
               controller: passwordController,
+              style: TextStyle(color: Color(0xFFD0C05B)), // Warna teks input
               decoration: InputDecoration(
                 labelText: 'Password',
                 labelStyle: TextStyle(color: Color(0xFFD0C05B)),
+                hintStyle: TextStyle(color: Color(0xFFB0B0B0)), // Warna placeholder
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFFD0C05B)),
                 ),

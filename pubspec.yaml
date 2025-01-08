@@ -26,6 +26,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.2
   firebase_auth: ^5.4.0
   pdf_image_renderer: ^1.0.1
+  intl: ^0.20.1
 
 dev_dependencies:
   flutter_test:
