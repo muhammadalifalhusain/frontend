@@ -46,7 +46,7 @@ class _SalesReportPageState extends State<SalesReportPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Map<String, dynamic>>>( 
         future: _futureSalesReport,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -61,20 +61,72 @@ class _SalesReportPageState extends State<SalesReportPage> {
             );
           } else {
             final sales = snapshot.data!;
-            return ListView.builder(
-              itemCount: sales.length,
-              itemBuilder: (context, index) {
-                final sale = sales[index];
-                return Card(
-                  margin: const EdgeInsets.all(8),
-                  child: ListTile(
-                    title: Text(sale['product_name']),
-                    subtitle: Text(
-                      'Total Terjual: ${sale['total_quantity']} pcs\nTotal Penjualan: Rp ${sale['total_sales']}',
-                    ),
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Table(
+                  border: TableBorder.all(
+                    color: Colors.black,
+                    width: 1,
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                );
-              },
+                  columnWidths: {
+                    0: FixedColumnWidth(120),
+                    1: FixedColumnWidth(120),
+                    2: FixedColumnWidth(150),
+                  },
+                  children: [
+                    TableRow(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Produk',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Total Terjual',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Total Penjualan',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                    ...sales.map(
+                      (sale) => TableRow(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(sale['product_name'] ?? ''),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(sale['total_quantity']?.toString() ?? ''),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                'Rp ${sale['total_sales']?.toString() ?? '0'}'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
         },

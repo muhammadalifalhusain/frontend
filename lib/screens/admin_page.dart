@@ -280,6 +280,16 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  // Fungsi logout
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Hapus data login (token)
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  }
+
   Drawer _buildDrawer() {
     return Drawer(
       child: ListView(
@@ -315,11 +325,11 @@ class _AdminPageState extends State<AdminPage> {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.lock, color: Color(0xFFD0C05B)),
-            title: const Text('Update Password', style: TextStyle(color: Color(0xFFD0C05B))),
+            leading: const Icon(Icons.logout, color: Color(0xFFD0C05B)),
+            title: const Text('Logout', style: TextStyle(color: Color(0xFFD0C05B))),
             onTap: () {
               Navigator.pop(context);
-              LoginPage();
+              _logout();
             },
           ),
         ],
