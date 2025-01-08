@@ -315,173 +315,336 @@ void _showProductDetail(BuildContext context, Product product) {
         });
       }
     }
+  showDialog(
+  context: context,
+  barrierDismissible: false,
+  builder: (BuildContext context) {
+    return StatefulBuilder(
+      builder: (BuildContext context, StateSetter dialogSetState) {
+        if (provinceList.isEmpty) {
+          _loadRegions(dialogSetState);
+        }
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter dialogSetState) {
-            // Panggil _loadRegions hanya sekali
-            if (provinceList.isEmpty) {
-              _loadRegions(dialogSetState);
-            }
-
-            return AlertDialog(
-              title: const Text("Form Pembayaran"),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Dropdown Provinsi
-                    DropdownButtonFormField<String>(
-                      hint: const Text("Pilih Provinsi"),
-                      value: selectedProvince,
-                      items: provinceList.map((prov) {
-                        return DropdownMenuItem<String>(
-                          value: prov["province"],
-                          child: Text(prov["province"]),
-                        );
-                      }).toList(),
-                      onChanged: provinceList.isEmpty
-                          ? null // Nonaktifkan dropdown jika data belum tersedia
-                          : (value) {
-                              dialogSetState(() {
-                                selectedProvince = value;
-                                cityList = provinceList.firstWhere((prov) =>
-                                        prov["province"] == value)["cities"]
-                                    as List<String>;
-                                selectedCity = null; // Reset kota
-                              });
-                            },
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // Dropdown Kota
-                    DropdownButtonFormField<String>(
-                      hint: const Text("Pilih Kota/Kabupaten"),
-                      value: selectedCity,
-                      items: cityList.map((city) {
-                        return DropdownMenuItem<String>(
-                          value: city,
-                          child: Text(city),
-                        );
-                      }).toList(),
-                      onChanged: cityList.isEmpty
-                          ? null // Nonaktifkan dropdown jika tidak ada kota
-                          : (value) {
-                              dialogSetState(() {
-                                selectedCity = value;
-                              });
-                            },
-                    ),
-                    const SizedBox(height: 10),
-                    // Alamat
-                    TextField(
-                      controller: addressController,
-                      decoration:
-                          const InputDecoration(labelText: "Alamat Lengkap"),
-                    ),
-                    const SizedBox(height: 10),
-                    
-                    
-                    ElevatedButton(
-                      onPressed: () {
-                        if (selectedCity == null || selectedProvince == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    "Pilih provinsi dan kota terlebih dahulu!")),
-                          );
-                          return;
-                        }
-                        dialogSetState(() {
-                          shippingCost = 15000; // Dummy biaya ongkir
-                        });
-                      },
-                      child: const Text("Cek Ongkir"),
-                    ),
-                    
-                    const SizedBox(height: 10),
-
-                    Text("Ongkos Kirim: Rp $shippingCost"),
-                    const SizedBox(height: 10),
-
-                    // Jumlah Bayar
-                    TextField(
-                      controller: paymentController,
-                      decoration:
-                          const InputDecoration(labelText: "Jumlah Bayar"),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Tombol pilih gambar
-                    ElevatedButton(
-                      onPressed: () => _pickImage(dialogSetState),
-                      child: const Text("Pilih Gambar Bukti Bayar"),
-                    ),
-                    if (paymentProofFile != null)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.file(paymentProofFile!,
-                            width: 100, height: 100, fit: BoxFit.cover),
-                      ),
-
-                    const SizedBox(height: 10),
-                    Text("Total Tagihan: Rp ${totalPrice + shippingCost}"),
-                  ],
-                ),
+        return AlertDialog(
+          backgroundColor: const Color(0xFF05284E),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: const Center(
+            child: Text(
+              "Form Pembayaran",
+              style: TextStyle(
+                color: Color(0xFFF9B14F),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Batal"),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Dropdown Provinsi
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Pilih Provinsi",
+                    style: TextStyle(
+                      color: Color(0xFFF9B14F),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                TextButton(
-                  onPressed: () async {
-                    final bayar = int.tryParse(paymentController.text) ?? 0;
-                    final grandTotal = totalPrice + shippingCost;
-                    if (bayar < grandTotal) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Pembayaran kurang")),
-                      );
-                      return;
-                    }
-                    if (selectedCity == null ||
-                        addressController.text.isEmpty ||
-                        selectedProvince == null) {
+                const SizedBox(height: 5),
+                DropdownButtonFormField<String>(
+                  value: selectedProvince,
+                  hint: const Text(
+                    "Pilih Provinsi",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  items: provinceList.map((prov) {
+                    return DropdownMenuItem<String>(
+                      value: prov["province"],
+                      child: Text(prov["province"]),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    dialogSetState(() {
+                      selectedProvince = value;
+                      cityList = provinceList
+                          .firstWhere((prov) => prov["province"] == value)["cities"] as List<String>;
+                      selectedCity = null;
+                    });
+                  },
+                ),
+                const SizedBox(height: 15),
+
+                // Dropdown Kota
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Pilih Kota/Kabupaten",
+                    style: TextStyle(
+                      color: Color(0xFFF9B14F),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                DropdownButtonFormField<String>(
+                  value: selectedCity,
+                  hint: const Text(
+                    "Pilih Kota/Kabupaten",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  items: cityList.map((city) {
+                    return DropdownMenuItem<String>(
+                      value: city,
+                      child: Text(city),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    dialogSetState(() {
+                      selectedCity = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 15),
+
+                // Tombol Cek Ongkir
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF9B14F),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (selectedProvince == null || selectedCity == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                            content:
-                                Text("Lengkapi provinsi, kota, dan alamat")),
+                          content: Text("Pilih provinsi dan kota terlebih dahulu!"),
+                        ),
                       );
                       return;
                     }
-                    final provinceName = selectedProvince!;
-                    final cityName = selectedCity!;
-
-                    Navigator.pop(context);
-
-                    // Log data pembayaran (dummy)
-                    await _processPayment(
-                      province: provinceName,
-                      city: cityName,
-                      address: addressController.text.trim(),
-                      shippingCost: shippingCost,
-                      totalPrice: totalPrice,
-                      paymentFile: paymentProofFile,
-                    );
+                    dialogSetState(() {
+                      shippingCost = 15000; // Dummy ongkos kirim
+                    });
+                    
                   },
-                  child: const Text("Bayar"),
+                  child: const Text(
+                    "Cek Ongkir",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // Alamat Lengkap
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Alamat Lengkap",
+                    style: TextStyle(
+                      color: Color(0xFFF9B14F),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                TextField(
+                  controller: addressController,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: "Masukkan alamat lengkap",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // Ongkos Kirim
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Ongkos Kirim:",
+                      style: TextStyle(
+                        color: Color(0xFFF9B14F),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "Rp $shippingCost",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+
+                // Tombol pilih gambar
+ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFF9B14F),
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
+  onPressed: () => _pickImage(dialogSetState),
+  child: const Text(
+    "Pilih Gambar Bukti Bayar",
+    style: TextStyle(color: Colors.black),
+  ),
+),
+
+// Tampilkan preview gambar jika sudah dipilih
+if (paymentProofFile != null)
+  Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Image.file(
+      paymentProofFile!,
+      width: 100,
+      height: 100,
+      fit: BoxFit.cover,
+    ),
+  ),
+
+
+                // Jumlah Bayar
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Jumlah Bayar",
+                    style: TextStyle(
+                      color: Color(0xFFF9B14F),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                TextField(
+                  controller: paymentController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: "Masukkan jumlah bayar",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+
+                // Total Tagihan
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Total Tagihan:",
+                      style: TextStyle(
+                        color: Color(0xFFF9B14F),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      "Rp ${totalPrice + shippingCost}",
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            );
-          },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Batal",
+                style: TextStyle(color: Color(0xFFF9B14F)),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF9B14F),
+              ),
+              onPressed: () async {
+                final bayar = int.tryParse(paymentController.text) ?? 0;
+                final grandTotal = totalPrice + shippingCost;
+                if (bayar < grandTotal) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Pembayaran kurang")),
+                  );
+                  return;
+                }
+                if (selectedCity == null ||
+                    addressController.text.isEmpty ||
+                    selectedProvince == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Lengkapi provinsi, kota, dan alamat"),
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.pop(context);
+
+                // Log data pembayaran
+                await _processPayment(
+                  province: selectedProvince!,
+                  city: selectedCity!,
+                  address: addressController.text.trim(),
+                  shippingCost: shippingCost,
+                  totalPrice: totalPrice,
+                  paymentFile: paymentProofFile,
+                );
+              },
+              child: const Text(
+                "Bayar",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
         );
       },
     );
+  },
+);
+
   }
 
   // Proses pembayaran: upload foto (jika ada), panggil createOrder
@@ -534,7 +697,7 @@ void _showProductDetail(BuildContext context, Product product) {
       await _saveCart();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Pembayaran berhasil! Pesanan dibuat.")),
+        const SnackBar(content: Text("Pesanan berhasil! Pesanan dibuat.")),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1038,7 +1201,7 @@ Widget build(BuildContext context) {
               },
               child: const Text(
                 '+Keranjang',
-                style: TextStyle(fontSize: 12, color: Colors.black),
+                style: TextStyle(fontSize: 12, color: Colors.black, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -1080,53 +1243,67 @@ Widget build(BuildContext context) {
         ],
       ),
       // Tombol Keranjang
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFF9B14F),
+ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFF9B14F),
+  ),
+  onPressed: () {
+    if (cart.isEmpty) {
+      // Tampilkan pesan jika keranjang kosong
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Keranjang kosong boskuuu",
+            style: TextStyle(color: Colors.black),
+          ),
+          backgroundColor: Color(0xFFF9B14F),
         ),
-        onPressed: () {
-          _showCartDialog();
+      );
+    } else {
+      // Jika keranjang tidak kosong, tampilkan dialog keranjang
+      _showCartDialog();
+    }
+  },
+  child: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      const Icon(
+        Icons.shopping_cart, // Ikon keranjang
+        color: Color(0xFF0D0D0D),
+      ),
+      const SizedBox(width: 8),
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (child, animation) {
+          return ScaleTransition(scale: animation, child: child);
         },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.shopping_cart, // Ikon keranjang
-              color: Color(0xFF0D0D0D),
-            ),
-            const SizedBox(width: 8),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) {
-                return ScaleTransition(scale: animation, child: child);
-              },
-              child: cart.isNotEmpty
-                  ? Container(
-                      key: ValueKey<int>(cart.values.reduce((a, b) => a + b)),
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        '${cart.values.reduce((a, b) => a + b)}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            const SizedBox(width: 8),
-            const Text(
+        child: cart.isNotEmpty
+            ? Container(
+                key: ValueKey<int>(cart.values.reduce((a, b) => a + b)),
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '${cart.values.reduce((a, b) => a + b)}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+                const SizedBox(width: 8),
+                const Text(
               'Keranjang',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Color(0xFF0D0D0D),
-              ),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Color(0xFF0D0D0D),
+             ),
             ),
           ],
         ),
