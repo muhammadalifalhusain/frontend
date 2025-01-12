@@ -92,7 +92,7 @@ Future<List<Map<String, dynamic>>> getUsers() async {
   if (response.statusCode == 200) {
     final Map<String, dynamic> jsonData = json.decode(response.body); // Parsing sebagai Map
     if (jsonData.containsKey('users')) {
-      // Pastikan respons memiliki properti `users`
+      // Pastikan respons memiliki properti users
       return List<Map<String, dynamic>>.from(jsonData['users']); // Ambil data users
     } else {
       throw Exception('Invalid response format: Missing "users" key');
@@ -113,12 +113,13 @@ Future<List<Map<String, dynamic>>> getUsers() async {
   }
 
   String url = '$baseUrl/report/sales';
-  if (startDate != null && endDate != null) {
-    final start = startDate.toIso8601String();
-    final end = endDate.toIso8601String();
+   if (startDate != null && endDate != null) {
+    final start = startDate.toIso8601String().split('T').first; // Hanya ambil tanggal
+    final end = endDate.toIso8601String().split('T').first; // Hanya ambil tanggal
     url += '?startDate=$start&endDate=$end';
+    print("start: $start");
+    print("end: $end");
   }
-
   final response = await http.get(
     Uri.parse(url),
     headers: {
@@ -126,9 +127,12 @@ Future<List<Map<String, dynamic>>> getUsers() async {
       'Content-Type': 'application/json',
     },
   );
+ 
+  print("url: $url");
 
   if (response.statusCode == 200) {
     final List<dynamic> jsonData = json.decode(response.body)['sales'];
+  print("response: $jsonData");
     return List<Map<String, dynamic>>.from(jsonData);
   } else {
     throw Exception('Failed to load sales report: ${response.body}');
